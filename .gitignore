@@ -1,0 +1,14 @@
+# IDE
+/__idea/
+/nbproject/
+
+# Dependencies
+/node_modules/
+/vendor/
+
+# Build
+/cache/
+/dist/
+/public/**/*.css
+/public/**/*.js
+/public/**/*.map

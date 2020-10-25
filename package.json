@@ -1,0 +1,20 @@
+{
+  "name": "F00bar.info",
+  "description": "",
+  "version": "1.0.0",
+  "author": "F00bar <f00bar@f00bar.info>",
+  "keywords": [],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/F00barInfo/F00bar.git"
+  },
+  "scripts": {},
+  "dependencies": {
+    "google-closure-compiler": "^20201006.0.0",
+    "normalize.css": "^8.0.1",
+    "postcss": "^8.1.4",
+    "sass": "^1.27.0",
+    "tailwindcss": "^1.9.6"
+  }
+}
