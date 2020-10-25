@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Remove "www." sub domain
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ http://%1%{REQUEST_URI} [L,R=301]
+  # Redirect index.html to directorz
+  RewriteCond %{REQUEST_URI} ^(.*)(index\.html)$ [NC]
+  RewriteRule ^ %1 [L,R=301]
+
+  # Determine base url
+  RewriteCond %{ENV:URI} ^$
+  RewriteRule ^(.*)$ - [ENV=URI:$1]
+  RewriteCond %{ENV:BASE} ^$
+  RewriteCond %{ENV:URI}::%{REQUEST_URI} ^(.*)::(.*?)\1$
+  RewriteRule ^ - [ENV=BASE:%2]
+
+  # Browser language based redirect
+  RewriteCond %{HTTP:Accept-Language}##en ^(de).*$|##(en) [NC]
+  RewriteRule ^((?!(go|en|de)\/).*)$ %{ENV:BASE}%1%2/$1 [L,R=301]
+</IfModule>
