@@ -17,5 +17,5 @@
 
   # Browser language based redirect
   RewriteCond %{HTTP:Accept-Language}##en ^(de).*$|##(en) [NC]
-  RewriteRule ^((?!(go|en|de)\/).*)$ %{ENV:BASE}%1%2/$1 [L,R=301]
+  RewriteRule ^((?!(en|de)\/).*)$ %{ENV:BASE}%1%2/$1 [L,R=301]
 </IfModule>

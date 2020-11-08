@@ -20,9 +20,6 @@ abstract class Task {
   /** Initialize task */
   abstract protected function init();
 
-  /**
-   * Execute task
-   * @param bool $force (optional)
-   */
-  abstract public function execute( bool $force = false );
+  /** Execute task */
+  abstract public function execute();
 }

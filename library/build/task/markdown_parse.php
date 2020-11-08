@@ -7,27 +7,27 @@ namespace F00bar\Build\Task;
 /** Build task "markdown parse" */
 class Markdown_Parse
 extends \F00bar\Build\Task {
-  /** @var \Symfony\Component\Finder\Finder File reader */
-  private ?\Symfony\Component\Finder\Finder $finder = null;
+  /** @var array List of meta attributes not to be inherited */
+  const META_SKIP_INHERIT = [ 'title' ];
 
-  /** @var \Pagerange\Markdown\MetaParsedown Markdown parser */
-  private ?\Pagerange\Markdown\MetaParsedown $parser = null;
+  /** @var \Symfony\Component\Finder\Finder File reader */
+  private \Symfony\Component\Finder\Finder $finder;
 
   /** @var \Symfony\Component\Finder\Finder File writer */
-  private ?\Symfony\Component\Filesystem\Filesystem $file_system = null;
+  private \Symfony\Component\Filesystem\Filesystem $file_system;
+
+  /** @var \Pagerange\Markdown\MetaParsedown Markdown parser */
+  private \Pagerange\Markdown\MetaParsedown $parser;
 
   /** Initialize task */
   protected function init() {
     $this->finder = new \Symfony\Component\Finder\Finder;
-    $this->parser = new \Pagerange\Markdown\MetaParsedown;
     $this->file_system = new \Symfony\Component\Filesystem\Filesystem;
+    $this->parser = new \Pagerange\Markdown\MetaParsedown;
   }
 
-  /**
-   * Execute task
-   * @param bool $force
-   */
-  public function execute( bool $force = false ) {
+  /** Execute task */
+  public function execute() {
     echo \TAB . 'Markdown parse:' . \EOL;
     // Parse and save markdown to html
     $tree = $this->read_tree();
@@ -56,14 +56,33 @@ extends \F00bar\Build\Task {
         $file->getFilename(),
         [
           'meta' => $this->parser->meta( $content ) ?? [],
-          'content' => $this->parser->text( $content ),
+          'content' => $this->read_content( $content ),
         ]
       );
     }
 
     echo \EOL;
 
-    return $this->inherit_meta( $tree );
+    $tree = $this->inherit_meta( $tree );
+    return $this->inherit_tree( $tree, $tree );
+  }
+
+  /**
+   * Strip markdown from meta, render with twig and then with markdown parser
+   * @param string $content
+   * @return string
+   */
+  private function read_content( string $content ) : string {
+    $twig_loader = new \Twig\Loader\ChainLoader( [
+      new \Twig\Loader\ArrayLoader( [
+        'index.html' => trim( $this->parser->stripMeta( $content ) ),
+      ] ),
+      new \Twig\Loader\FilesystemLoader( Twig_Compile::PATH_TEMPLATE )
+    ] );
+
+    return $this->parser->text(
+      ( new \Twig\Environment( $twig_loader ) )->render('index.html')
+    );
   }
 
   /**
@@ -106,15 +125,23 @@ extends \F00bar\Build\Task {
    * @param array $meta
    * @return array
    */
-  private function inherit_meta( array $tree, array $meta = [] ) : array {
+  private function inherit_meta(
+      array $tree,
+      array $meta = []
+    ) : array {
     // Inherit meta from parent
-    $inherit = ( $tree[ 'index.md' ][ 'meta' ] ?? [] ) + $meta;
+    $inherit = \array_filter(
+      ( $tree[ 'index.md' ][ 'meta' ] ?? [] ) + $meta,
+      fn( $key ) => ! \in_array( $key, self::META_SKIP_INHERIT ),
+      \ARRAY_FILTER_USE_KEY
+    );
+
     // Inherit tree meta from parent
     foreach( $tree as $name => &$data ) {
-      if( '.md' == substr( $name, -3 ) ) {
-        $data[ 'meta' ] += $inherit;
-      } else {
+      if( '.md' !== substr( $name, -3 ) ) {
         $data = $this->inherit_meta( $data, $inherit );
+      } else {
+        $data[ 'meta' ] += $inherit;
       }
     }
 
@@ -122,7 +149,79 @@ extends \F00bar\Build\Task {
   }
 
   /**
-   *
+   * Inherit tree content when inherit attribute is set
+   * @param array $tree
+   * @param array $item
+   * @param string $name
+   * @param array $path
+   * @return array
+   */
+  private function inherit_tree(
+    array $tree,
+    array $item,
+    string $name = '',
+    array $path = []
+  ) : array {
+    empty( $name ) ?: $path[] = $name;
+
+    // Inherit tree meta from parent
+    foreach( $item as $item_name => $item_data ) {
+      if( '.md' !== substr( $item_name, -3 ) ) {
+        $tree = $this->inherit_tree( $tree, $item_data, $item_name, $path );
+      } elseif( (bool)( $item_data[ 'meta' ][ 'inherit' ] ?? false ) ) {
+        foreach( $tree as $locale => &$tree_data ) {
+          // Overwrite locale with value from target branch
+          $item_data[ 'locale' ] = $tree_data[ 'index.md' ][ 'locale' ];
+          // Inherit item into other branches
+          $tree_data = $this->inherit_tree_data(
+            $tree_data,
+            $item_data,
+            $item_name,
+            \array_slice( $path, 1 )
+          );
+        }
+      }
+    }
+
+    return $tree;
+  }
+
+  /**
+   * Inherit item onto given path
+   * @param array $tree
+   * @param array $item
+   * @param string $name
+   * @param array $path
+   * @return array
+   */
+  private function inherit_tree_data(
+    array $tree,
+    array $item,
+    string $name,
+    array $path
+  ) : array {
+    $current = \array_shift( $path );
+    if( ! empty( $current ) ) {
+      // Go deeper
+      isset( $tree[ $current ] ) ?: $tree[ $current ] = [];
+
+      foreach( $tree as $tree_name => &$tree_data ) {
+        $tree_data = $this->inherit_tree_data(
+          $tree_data,
+          $item,
+          $name,
+          $path
+        );
+      }
+    } else {
+      $tree[ $name ] = $item;
+    }
+
+    return $tree;
+  }
+
+  /**
+   * Save given tree
    * @param string $path
    * @param array $tree
    * @throws \Exception

@@ -7,18 +7,17 @@ namespace F00bar\Translate;
 /** Translate locale instance */
 class Locale {
   /** @var \Gettext\Translations Translations instance */
-  private ?\Gettext\Translations $translation = null;
+  private \Gettext\Translations $translation;
 
   /**
    * Initialize locale
    * @param string $locale
    */
   public function __construct( string $locale ) {
-    $mo = new \Gettext\Loader\MoLoader;
-    // Load reqested MO file
-    if( \file_exists( \PATH_LOCALE . $locale . '.mo' ) ) {
-      $this->translation = $mo->loadFile( \PATH_LOCALE . $locale . '.mo' );
-    }
+    $this->translation =
+      \file_exists( \PATH_LOCALE . $locale . '.mo' )
+        ? ( new \Gettext\Loader\MoLoader )->loadFile( \PATH_LOCALE . $locale . '.mo' )
+        : \Gettext\Translations::create( null, $locale );
   }
 
   /**

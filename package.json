@@ -11,10 +11,13 @@
   },
   "scripts": {},
   "dependencies": {
-    "google-closure-compiler": "^20201006.0.0",
+    "google-closure-compiler": "^20201102.0.1",
     "normalize.css": "^8.0.1",
-    "postcss": "^8.1.4",
-    "sass": "^1.27.0",
+    "postcss": "^8.1.6",
+    "postcss-cli": "^8.2.0",
+    "postcss-flexbugs-fixes": "^5.0.1",
+    "postcss-import": "^13.0.0",
+    "sass": "^1.29.0",
     "tailwindcss": "^1.9.6"
   }
 }

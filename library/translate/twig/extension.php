@@ -37,8 +37,8 @@ extends \Twig\Extension\AbstractExtension {
     ];
   }
 
-  /** @param array ...$argument */
-  private function log( array ...$argument ) {
+  /** @param string ...$argument */
+  private function log( string ...$argument ) {
     $this->l10n[ \implode( ':?:', $argument ) ] = $argument;
   }
 

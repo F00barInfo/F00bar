@@ -10,5 +10,6 @@
 /cache/
 /dist/
 /public/**/*.css
+/public/**/*.html
 /public/**/*.js
 /public/**/*.map

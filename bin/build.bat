@@ -1,1 +1,1 @@
-php "%~dp0build.php" --action=build %*
+php "%~dp0build.php" %*

@@ -7,11 +7,11 @@
     "phpdocumentor/reflection": "4.0.*",
     "erusev/parsedown-extra": "0.8.1",
     "pagerange/metaparsedown": "1.0.8",
-    "twig/twig": "v3.1.0",
-    "symfony/finder": "v5.1.7",
-    "symfony/dom-crawler": "v5.1.7",
-    "symfony/filesystem": "v5.1.7",
-    "symfony/css-selector": "v5.1.7",
+    "twig/twig": "v3.1.*",
+    "symfony/finder": "v5.1.*",
+    "symfony/dom-crawler": "v5.1.*",
+    "symfony/filesystem": "v5.1.*",
+    "symfony/css-selector": "v5.1.*",
     "gettext/gettext": "v5.5.1"
   }
 }

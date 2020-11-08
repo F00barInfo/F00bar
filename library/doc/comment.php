@@ -19,7 +19,7 @@ class Comment {
   private static ?\phpDocumentor\Reflection\DocBlockFactory $_factory = null;
 
   /** @var \phpDocumentor\Reflection\DocBlock */
-  private ?\phpDocumentor\Reflection\DocBlock $_doc = null;
+  private \phpDocumentor\Reflection\DocBlock $_doc;
 
   /** @param string $comment */
   public function __construct( string $comment ) {
